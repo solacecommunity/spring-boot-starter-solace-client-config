@@ -1,31 +1,54 @@
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+# spring-boot-starter-solace-client-config
 
-# Project Title
+This starter enables the Solace configuration to use certificates and private keys in the PEM format. As PEM is just a text format,
+it can be easily passed to the application configuration directly from an environment variable or configuration files such as `.yaml` or
+`.properties`. Loading certificates and private keys in the `.jks` format from the file system is no longer necessary.
 
-## Overview
-This project is ...
+## Usage
 
-## Getting started quickly
-1. Step 1
-1. Step 2
-1. Step 3
+Add a dependency in your application POM:
+```xml
 
-## Documentation
-Details about the what why and how of this project. Either refer to external documentations or document in this repo
+<dependency>
+    <groupId>ch.sbb.tms.platform</groupId>
+    <artifactId>spring-boot-starter-solace-client-config</artifactId>
+    <version>2.1.0</version>
+</dependency>
+```
 
-## Resources
-This is not an officially supported Solace product.
+## Configuration
 
-For more information try these resources:
-- Ask the [Solace Community](https://solace.community)
-- The Solace Developer Portal website at: https://solace.dev
+The PEM strings can be defined via environment variables, properties or directly in the `application.yml`.
+```yaml
+solace:
+  java:
+    apiProperties:
+      AUTHENTICATION_SCHEME: AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE
+      SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
+      SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
+      SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS}
+```
 
+When the configuration is made directly in the binder config, it requires additionally the
+`spring.main.sources: ch.sbb.tms.platform.springbootstarter.solaceclientconfig.PemFormatConfigurer` property to enable the
+PemFormatConfigurer in the binder context.
+```yaml
+spring:
+  cloud:
+    stream:
+      binders:
+        <solace_binder_name>:
+          type: solace
+          environment:
+            spring.main.sources: ch.sbb.tms.platform.springbootstarter.solaceclientconfig.PemFormatConfigurer
+            solace:
+              java:
+                apiProperties:
+                  AUTHENTICATION_SCHEME: AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE
+                  SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
+                  SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
+                  SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS}
+```
 
-## Contributing
-Contributions are encouraged! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Authors
-See the list of [contributors](https://github.com/solacecommunity/<github-repo>/graphs/contributors) who participated in this project.
-
-## License
-See the [LICENSE](LICENSE) file for details.
+Note, that for both configuration cases, all 4 API properties (AUTHENTICATION_SCHEME, SSL_CLIENT_CERT, SSL_PRIVATE_KEY, SSL_TRUST_CERT) are required to 
+create a valid Solace broker connection configuration.

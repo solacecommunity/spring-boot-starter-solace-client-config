@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ch.sbb.tms.platform.springbootstarter.solaceclientconfig.JCSMPPropertiesPostProcessorTest
+-------------------------------------------------------------------------------
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.743 s - in ch.sbb.tms.platform.springbootstarter.solaceclientconfig.JCSMPPropertiesPostProcessorTest

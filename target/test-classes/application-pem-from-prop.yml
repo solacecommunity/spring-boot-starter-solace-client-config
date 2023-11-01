@@ -1,0 +1,12 @@
+spring:
+  config:
+    import:
+      - solace.properties
+
+solace:
+  java:
+    apiProperties:
+      AUTHENTICATION_SCHEME: AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE
+      SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
+      SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
+      SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS}

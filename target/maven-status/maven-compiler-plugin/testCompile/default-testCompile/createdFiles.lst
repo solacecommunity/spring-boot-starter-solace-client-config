@@ -1,0 +1,8 @@
+ch/sbb/tms/platform/springbootstarter/solaceclientconfig/PemFormatConfigurerYmlIT.class
+ch/sbb/tms/platform/springbootstarter/solaceclientconfig/PemFormatConfigurerPropIT.class
+ch/sbb/tms/platform/springbootstarter/solaceclientconfig/JCSMPPropertiesPostProcessorTest.class
+com/solacesystems/jcsmp/impl/JCSMPPropertiesExtensionTest.class
+ch/sbb/tms/platform/springbootstarter/solaceclientconfig/PemFormatTransformerTest.class
+ch/sbb/tms/platform/springbootstarter/solaceclientconfig/AbstractPemFormatConfigurerIT.class
+ch/sbb/tms/platform/springbootstarter/solaceclientconfig/KeyStoreFactoryTest.class
+ch/sbb/tms/capaopt/springbootstarter/solaceclientconfig/TestApplication.class

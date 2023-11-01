@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>community.solace.spring.boot</groupId>
+  <artifactId>spring-boot-starter-solace-client-config</artifactId>
+  <version>2.1.2-SNAPSHOT</version>
+  <name>spring-boot-starter-solace-client-config</name>
+  <description>Provides functionality to define solace client certificate PEM text and private key directly in env
+        variables or yaml files
+        instead of using jks files.</description>
+  <url>https://spring.io/projects/spring-boot/spring-boot-starter-solace-client-config</url>
+  <organization>
+    <name>Solace Community</name>
+    <url>https://solace.community</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://github.com/solacecommunity/spring-boot-starter-solace-client-config/blob/main/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Solace Community</name>
+      <email>community-github@solace.com</email>
+      <organization>Solace Community</organization>
+      <organizationUrl>https://solace.community</organizationUrl>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/solacecommunity/spring-cloud-stream-request-reply.git</connection>
+    <developerConnection>scm:git:git@github.com/solacecommunity/spring-cloud-stream-request-reply.git</developerConnection>
+    <url>https://github.com/solacecommunity/spring-cloud-stream-request-reply.git</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <version>3.1.4</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.solacesystems</groupId>
+      <artifactId>sol-jcsmp</artifactId>
+      <version>10.21.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.solace.spring.boot</groupId>
+      <artifactId>solace-java-spring-boot-autoconfigure</artifactId>
+      <version>5.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-dependencies</artifactId>
+      <version>3.1.4</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+      <version>3.1.4</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
