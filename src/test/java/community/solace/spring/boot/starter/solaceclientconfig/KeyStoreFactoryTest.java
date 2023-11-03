@@ -2,7 +2,7 @@
  * Copyright © Schweizerische Bundesbahnen SBB, 2023.
  */
 
-package ch.sbb.tms.platform.springbootstarter.solaceclientconfig;
+package community.solace.spring.boot.starter.solaceclientconfig;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -34,16 +33,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class KeyStoreFactoryTest {
 
-    private static final String PEM_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n" +
-            "MIIFaDCCBFCgAwIBAgISESHkvZFwK9Qz0KsXD3x8p44aMA0GCSqGSIb3DQEBCwUA\n" +
-            "...\n" +
-            "lffygD5IymCSuuDim4qB/9bh7oi37heJ4ObpBIzroPUOthbG4gv/5blW3Dc=\n" +
-            "-----END CERTIFICATE-----\n";
-    private static final String PEM_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n" +
-            "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBj08sp5++4anG\n" +
-            "...\n" +
-            "z3P668YfhUbKdRF6S42Cg6zn\n" +
-            "-----END PRIVATE KEY-----";
+    private static final String PEM_CERTIFICATE = """
+            -----BEGIN CERTIFICATE-----
+            MIIFaDCCBFCgAwIBAgISESHkvZFwK9Qz0KsXD3x8p44aMA0GCSqGSIb3DQEBCwUA
+            ...
+            lffygD5IymCSuuDim4qB/9bh7oi37heJ4ObpBIzroPUOthbG4gv/5blW3Dc=
+            -----END CERTIFICATE-----""";
+    private static final String PEM_PRIVATE_KEY = """
+            -----BEGIN PRIVATE KEY-----
+            "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBj08sp5++4anG
+            ...
+            z3P668YfhUbKdRF6S42Cg6zn
+            -----END PRIVATE KEY-----""";
 
     private KeyStoreFactory uut;
 

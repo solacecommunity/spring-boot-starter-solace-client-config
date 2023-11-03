@@ -1,7 +1,7 @@
 /*
  * Copyright © Schweizerische Bundesbahnen SBB, 2023.
  */
-package ch.sbb.tms.platform.springbootstarter.solaceclientconfig;
+package community.solace.spring.boot.starter.solaceclientconfig;
 
 import com.solacesystems.jcsmp.JCSMPProperties;
 import com.solacesystems.jcsmp.JCSMPPropertyMap;
@@ -16,16 +16,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
-import java.util.List;
 
-import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME;
-import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE;
-import static com.solacesystems.jcsmp.JCSMPProperties.SSL_IN_MEMORY_KEY_STORE;
-import static com.solacesystems.jcsmp.JCSMPProperties.SSL_IN_MEMORY_TRUST_STORE;
-import static com.solacesystems.jcsmp.JCSMPProperties.SSL_KEY_STORE_PASSWORD;
-import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.SSL_CLIENT_CERT;
-import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.SSL_PRIVATE_KEY;
-import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.SSL_TRUST_CERT;
+import static com.solacesystems.jcsmp.JCSMPProperties.*;
+import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.*;
 
 /**
  * A bean post processor used to enhance the JCSMP configuration properties with authentication objects created from the PEM format.
@@ -40,6 +33,7 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
         this.keyStoreFactory = keyStoreFactory;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
         try {

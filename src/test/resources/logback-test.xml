@@ -9,7 +9,7 @@
         </encoder>
     </appender>
 
-    <logger name="ch.sbb.tms.capaopt.springbootstarter.solaceclientconfig.infra" level="DEBUG"/>
+    <logger name="community.solace.spring.boot.starter.solaceclientconfig" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

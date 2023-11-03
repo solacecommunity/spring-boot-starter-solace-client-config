@@ -10,9 +10,9 @@ Add a dependency in your application POM:
 ```xml
 
 <dependency>
-    <groupId>ch.sbb.tms.platform</groupId>
+    <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>2.1.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -30,7 +30,7 @@ solace:
 ```
 
 When the configuration is made directly in the binder config, it requires additionally the
-`spring.main.sources: ch.sbb.tms.platform.springbootstarter.solaceclientconfig.PemFormatConfigurer` property to enable the
+`spring.main.sources: community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer` property to enable the
 PemFormatConfigurer in the binder context.
 ```yaml
 spring:
@@ -40,7 +40,7 @@ spring:
         <solace_binder_name>:
           type: solace
           environment:
-            spring.main.sources: ch.sbb.tms.platform.springbootstarter.solaceclientconfig.PemFormatConfigurer
+            spring.main.sources: community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer
             solace:
               java:
                 apiProperties:

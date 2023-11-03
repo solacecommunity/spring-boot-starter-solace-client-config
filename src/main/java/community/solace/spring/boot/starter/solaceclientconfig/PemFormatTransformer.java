@@ -1,7 +1,7 @@
 /*
  * Copyright © Schweizerische Bundesbahnen SBB, 2023.
  */
-package ch.sbb.tms.platform.springbootstarter.solaceclientconfig;
+package community.solace.spring.boot.starter.solaceclientconfig;
 
 import org.springframework.util.StringUtils;
 
@@ -15,11 +15,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 

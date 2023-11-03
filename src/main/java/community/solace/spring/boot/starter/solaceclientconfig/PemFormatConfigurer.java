@@ -1,7 +1,7 @@
 /*
  * Copyright © Schweizerische Bundesbahnen SBB, 2023.
  */
-package ch.sbb.tms.platform.springbootstarter.solaceclientconfig;
+package community.solace.spring.boot.starter.solaceclientconfig;
 
 import com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension;
 import org.springframework.beans.factory.config.BeanPostProcessor;

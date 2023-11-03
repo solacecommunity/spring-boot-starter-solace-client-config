@@ -1,1 +1,1 @@
-ch.sbb.tms.platform.springbootstarter.solaceclientconfig.PemFormatConfigurer
+community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer
