@@ -1,6 +1,3 @@
-/*
- * Copyright © Schweizerische Bundesbahnen SBB, 2023.
- */
 package community.solace.spring.boot.starter.solaceclientconfig;
 
 import com.solacesystems.jcsmp.JCSMPProperties;
@@ -8,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -30,6 +28,9 @@ abstract class AbstractPemFormatConfigurerIT {
 
     @Autowired
     private ApplicationContext context;
+
+    @MockBean
+    private SslCertInfoProperties sslCertInfoProperties;
 
     @Test
     void jcsmpPropertiesAreFullySet() throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {

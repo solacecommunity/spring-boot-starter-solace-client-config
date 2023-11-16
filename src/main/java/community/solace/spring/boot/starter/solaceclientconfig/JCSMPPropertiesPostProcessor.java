@@ -1,6 +1,3 @@
-/*
- * Copyright © Schweizerische Bundesbahnen SBB, 2023.
- */
 package community.solace.spring.boot.starter.solaceclientconfig;
 
 import com.solacesystems.jcsmp.JCSMPProperties;
@@ -10,11 +7,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 
 import static com.solacesystems.jcsmp.JCSMPProperties.*;
@@ -25,12 +28,16 @@ import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.*;
  */
 final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JCSMPPropertiesPostProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JCSMPPropertiesPostProcessor.class);
 
     private final KeyStoreFactory keyStoreFactory;
+    private final TaskScheduler taskScheduler;
+    private final SslCertInfoProperties sslCertInfoProperties;
 
-    public JCSMPPropertiesPostProcessor(final KeyStoreFactory keyStoreFactory) {
+    public JCSMPPropertiesPostProcessor(final KeyStoreFactory keyStoreFactory, TaskScheduler taskScheduler, SslCertInfoProperties sslCertInfoProperties) {
         this.keyStoreFactory = keyStoreFactory;
+        this.taskScheduler = taskScheduler;
+        this.sslCertInfoProperties = sslCertInfoProperties;
     }
 
     @SuppressWarnings("NullableProblems")
@@ -38,12 +45,12 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
     public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
         try {
             if (bean instanceof JCSMPProperties) {
-                LOGGER.debug("Postprocessing {} bean", bean.getClass());
+                LOG.debug("Postprocessing {} bean", bean.getClass());
                 return addAuthenticationProperties(((JCSMPProperties) bean));
             }
         }
         catch (final GeneralSecurityException | IOException | NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error("Could not postprocess bean {}", bean.getClass());
+            LOG.error("Could not postprocess bean {}", bean.getClass());
             throw new FatalBeanException("Failed to enhance JCSMPProperties on bean " + beanName, e);
         }
         return bean;
@@ -53,27 +60,30 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
             IOException, NoSuchFieldException, IllegalAccessException {
 
         if (clientCertPropertiesArePresent(jcsmpProperties)) {
-            LOGGER.debug("Adding Solace ClientCert properties to JSCMPProperties");
-            jcsmpProperties.setProperty(SSL_IN_MEMORY_KEY_STORE, keyStoreFactory.createClientKeyStore(
+            LOG.debug("Adding Solace ClientCert properties to JSCMPProperties");
+            KeyStore keyStore = keyStoreFactory.createClientKeyStore(
                     jcsmpProperties.getStringProperty(SSL_PRIVATE_KEY),
                     jcsmpProperties.getStringProperty(SSL_CLIENT_CERT)
-            ));
+            );
+            checkValidToPeriodically(keyStoreFactory.getValidTo(jcsmpProperties.getStringProperty(SSL_CLIENT_CERT)));
+
+            jcsmpProperties.setProperty(SSL_IN_MEMORY_KEY_STORE, keyStore);
             jcsmpProperties.setProperty(SSL_KEY_STORE_PASSWORD, keyStoreFactory.getClientKeyStorePassword());
         }
-        else if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("No Solace ClientCert properties were added to JCSMPProperties. " +
+        else if (LOG.isDebugEnabled()) {
+            LOG.debug("No Solace ClientCert properties were added to JCSMPProperties. " +
                     "Missing at least one required property: {}, {}, {}", SSL_CLIENT_CERT, SSL_PRIVATE_KEY, SSL_TRUST_CERT);
         }
 
 
         if (trustStorePropertiesArePresent(jcsmpProperties)) {
-            LOGGER.debug("Adding Solace TrustStore properties to JSCMPProperties");
+            LOG.debug("Adding Solace TrustStore properties to JSCMPProperties");
             jcsmpProperties.setProperty(SSL_IN_MEMORY_TRUST_STORE, keyStoreFactory.createTrustStore(
                     jcsmpProperties.getStringProperty(SSL_TRUST_CERT))
             );
         }
-        else if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("No Solace TrustStore properties were added to JCSMPProperties. " +
+        else if (LOG.isDebugEnabled()) {
+            LOG.debug("No Solace TrustStore properties were added to JCSMPProperties. " +
                     "Missing at least one required property: {}, {}, {}", SSL_CLIENT_CERT, SSL_PRIVATE_KEY, SSL_TRUST_CERT);
         }
 
@@ -94,6 +104,36 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
         }
 
         return jcsmpProperties;
+    }
+
+    private void checkValidToPeriodically(Instant notAfter) {
+        if (notAfter == null || !sslCertInfoProperties.isEnabled()) {
+            return;
+        }
+
+        // Always log at 09:00AM to not trigger nightly support on error.
+        Instant workDayBegin = Instant.now()
+                        .atZone(ZoneId.systemDefault())
+                        .withHour(9)
+                        .withMinute(0)
+                        .withSecond(0)
+                        .toInstant();
+        if (Instant.now().isAfter(workDayBegin)) {
+            workDayBegin = workDayBegin.plus(1, ChronoUnit.DAYS);
+        }
+
+        taskScheduler.scheduleAtFixedRate(
+                () -> {
+                    long validForDays = Duration.between(Instant.now(), notAfter).toDays();
+                    if (validForDays < sslCertInfoProperties.getErrorInDays()) {
+                        LOG.error("Your ssl client auth cert, used to auth at solace broker is going to be expired in " + validForDays + "days");
+                    } else if (validForDays < sslCertInfoProperties.getWarnInDays()) {
+                        LOG.warn("Your ssl client auth cert, used to auth at solace broker is going to be expired in " + validForDays + "days");
+                    }
+                },
+                workDayBegin,
+                Duration.ofDays(1)
+        );
     }
 
     @SuppressWarnings("unchecked")

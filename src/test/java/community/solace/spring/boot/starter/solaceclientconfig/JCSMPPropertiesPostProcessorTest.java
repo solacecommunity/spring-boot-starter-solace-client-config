@@ -1,7 +1,3 @@
-/*
- * Copyright © Schweizerische Bundesbahnen SBB, 2023.
- */
-
 package community.solace.spring.boot.starter.solaceclientconfig;
 
 import com.solacesystems.jcsmp.JCSMPProperties;
@@ -13,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.FatalBeanException;
+import org.springframework.scheduling.TaskScheduler;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -56,9 +53,15 @@ class JCSMPPropertiesPostProcessorTest {
     @Mock
     private KeyStore trustStoreMock;
 
+    @Mock
+    private TaskScheduler taskScheduler;
+
+    @Mock
+    private SslCertInfoProperties sslCertInfoProperties;
+
     @BeforeEach
     void beforeEachTest() {
-        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock);
+        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock, taskScheduler, sslCertInfoProperties);
     }
 
     @Test

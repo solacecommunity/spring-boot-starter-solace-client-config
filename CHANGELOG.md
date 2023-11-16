@@ -7,19 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## 2.1.0 - 2023-09-27
-### Changed
-- Forked by STTRS
-- Parent-POM to pure spring
+## 1.1.0 - 2023-11-17
+### Added
+ - Log messages if the certificate is about to expire
 
-
-## 2.0.0 - 2023-07-20
-### Changed
- - Parent-POM updated to version 3.0.0
- - Requires Spring 2.7.11
- - Requires `sol-jcsmp` 10.17.0
- - Requires `solace-java-spring-boot-autoconfigure` 4.3.0
-
-## 1.0.0 - 2023-06-20
+## 1.0.0 - 2023-09-27
 ### Added
  - Initial version

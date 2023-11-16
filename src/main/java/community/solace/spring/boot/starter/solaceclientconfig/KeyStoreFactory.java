@@ -1,18 +1,21 @@
-/*
- * Copyright © Schweizerische Bundesbahnen SBB, 2023.
- */
-
 package community.solace.spring.boot.starter.solaceclientconfig;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.time.Instant;
 
 final class KeyStoreFactory {
 
     static final String INTERNAL_PASSWORD = "internalPassword";
+    private static final Logger LOG = LoggerFactory.getLogger(KeyStoreFactory.class);
 
     private final PemFormatTransformer pemFormatTransformer;
 
@@ -49,6 +52,16 @@ final class KeyStoreFactory {
             return trustStore;
         } catch (Exception e) {
             throw new IllegalArgumentException("SSL_TRUST_CERT: " + e.getMessage(), e);
+        }
+    }
+
+    public Instant getValidTo(String clientCertPem) {
+        try {
+            final Certificate[] certificates = pemFormatTransformer.getCertificates(clientCertPem);
+            return ((X509Certificate)certificates[0]).getNotAfter().toInstant();
+        } catch (CertificateException | IOException e) {
+            LOG.error("Unable to extract notAfter date from certificate", e);
+            return null;
         }
     }
 }

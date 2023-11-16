@@ -1,7 +1,3 @@
-/*
- * Copyright © Schweizerische Bundesbahnen SBB, 2023.
- */
-
 package com.solacesystems.jcsmp.impl;
 
 import org.junit.jupiter.api.Test;

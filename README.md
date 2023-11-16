@@ -52,3 +52,20 @@ spring:
 
 Note, that for both configuration cases, all 4 API properties (AUTHENTICATION_SCHEME, SSL_CLIENT_CERT, SSL_PRIVATE_KEY, SSL_TRUST_CERT) are required to 
 create a valid Solace broker connection configuration.
+
+
+An additional feature is log messages to warn you if your certificate is going to be expired.
+
+```yaml
+solace:
+  java:
+    sslCertInfo:
+      enabled: true
+      warnInDays: 30
+      errorInDays: 7
+```
+
+You will get WARNING or ERROR messages in log like:
+`Your ssl client auth cert, used to auth at solace broker is going to be expired in 25days`
+
+that should highlight if your client cert is about to expire.
