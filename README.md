@@ -26,7 +26,7 @@ solace:
       AUTHENTICATION_SCHEME: AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE
       SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
       SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
-      SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS}
+      SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS:}
 ```
 
 When the configuration is made directly in the binder config, it requires additionally the
@@ -47,7 +47,7 @@ spring:
                   AUTHENTICATION_SCHEME: AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE
                   SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
                   SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
-                  SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS}
+                  SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS:}
 ```
 
 Note, that for both configuration cases, all 4 API properties (AUTHENTICATION_SCHEME, SSL_CLIENT_CERT, SSL_PRIVATE_KEY, SSL_TRUST_CERT) are required to 
