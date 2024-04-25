@@ -17,6 +17,7 @@ import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
 
 import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME;
 import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME_BASIC;
@@ -61,7 +62,7 @@ class JCSMPPropertiesPostProcessorTest {
 
     @BeforeEach
     void beforeEachTest() {
-        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock, taskScheduler, sslCertInfoProperties);
+        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock, Optional.of(taskScheduler), sslCertInfoProperties);
     }
 
     @Test

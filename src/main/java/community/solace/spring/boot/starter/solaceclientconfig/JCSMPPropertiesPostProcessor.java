@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static com.solacesystems.jcsmp.JCSMPProperties.*;
 import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.*;
@@ -34,9 +35,9 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
     private final TaskScheduler taskScheduler;
     private final SslCertInfoProperties sslCertInfoProperties;
 
-    public JCSMPPropertiesPostProcessor(final KeyStoreFactory keyStoreFactory, TaskScheduler taskScheduler, SslCertInfoProperties sslCertInfoProperties) {
+    public JCSMPPropertiesPostProcessor(final KeyStoreFactory keyStoreFactory, Optional<TaskScheduler> taskScheduler, SslCertInfoProperties sslCertInfoProperties) {
         this.keyStoreFactory = keyStoreFactory;
-        this.taskScheduler = taskScheduler;
+        this.taskScheduler = taskScheduler.orElse(null);
         this.sslCertInfoProperties = sslCertInfoProperties;
     }
 
@@ -107,7 +108,11 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor {
     }
 
     private void checkValidToPeriodically(Instant notAfter) {
-        if (notAfter == null || !sslCertInfoProperties.isEnabled()) {
+        if (notAfter == null || !sslCertInfoProperties.isEnabled() ) {
+            return;
+        }
+        if (taskScheduler==null){
+            LOG.warn("Cant verify certificate expiration because taskScheduler is missing");
             return;
         }
 
