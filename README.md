@@ -4,6 +4,15 @@ This starter enables the Solace configuration to use certificates and private ke
 it can be easily passed to the application configuration directly from an environment variable or configuration files such as `.yaml` or
 `.properties`. Loading certificates and private keys in the `.jks` format from the file system is no longer necessary.
 
+## Spring Cloud Version Compatibility
+
+Consult the table below to determine which version you need to use:
+
+| spring-boot-starter-solace-client-config | Spring Boot | sol-jcsmp |
+|------------------------------------------|-------------|-----------|
+| 1.0.2                                    | 3.3.0       | 10.23.0   |
+| 1.0.1                                    | 3.2.5       | 10.23.0   |
+
 ## Usage
 
 Add a dependency in your application POM:
@@ -12,7 +21,7 @@ Add a dependency in your application POM:
 <dependency>
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 

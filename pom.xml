@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.3.0</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <name>spring-boot-starter-solace-client-config</name>
     <description>Provides functionality to define solace client certificate PEM text and private key directly in env
@@ -51,7 +51,7 @@
 
     <properties>
         <solace.jcsmp.version>10.23.0</solace.jcsmp.version>
-        <spring.boot.version>3.2.5</spring.boot.version>
+        <spring.boot.version>3.3.0</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.solace.spring.cloud</groupId>
             <artifactId>spring-cloud-starter-stream-solace</artifactId>
-            <version>5.0.0</version>
+            <version>5.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
