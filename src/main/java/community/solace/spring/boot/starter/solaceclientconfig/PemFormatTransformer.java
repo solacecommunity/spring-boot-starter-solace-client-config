@@ -1,16 +1,16 @@
 package community.solace.spring.boot.starter.solaceclientconfig;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.regex.Matcher;
@@ -23,17 +23,16 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
  */
 final class PemFormatTransformer {
 
-    private static final Pattern PEM_FORMAT = Pattern.compile(
-            "^\\s*-----BEGIN (RSA PRIVATE KEY|PRIVATE KEY)-----\\s*(" +
-                    "([0-9a-zA-Z+/=]{64}\\s*)*" +
-                    "([0-9a-zA-Z+/=]{1,63}\\s*)?" +
-                    ")-----END (RSA PRIVATE KEY|PRIVATE KEY)-----\\s*$"
-    );
+    private static final Logger LOG = LoggerFactory.getLogger(PemFormatTransformer.class);
+    private static final Pattern PEM_FORMAT = Pattern.compile("^\\s*-----BEGIN (RSA PRIVATE KEY|PRIVATE KEY)-----\\s*(" + "([0-9a-zA-Z+/=]{64}\\s*)*" + "([0-9a-zA-Z+/=]{1,63}\\s*)?" + ")-----END (RSA PRIVATE KEY|PRIVATE KEY)-----\\s*$");
 
     Certificate[] getCertificates(final String pem) throws CertificateException, IOException {
         final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         try (final ByteArrayInputStream is = new ByteArrayInputStream(cleanWhiteSpace(pem).getBytes(ISO_8859_1))) {
             return certificateFactory.generateCertificates(is).toArray(new Certificate[0]);
+        } catch (Exception exception) {
+            LOG.warn("Could not parse SSL_CLIENT_CERT {} pem={}...", exception.getMessage(), pem.substring(0, Math.min(10, pem.length() - 1)), exception);
+            return null;
         }
     }
 
@@ -48,10 +47,7 @@ final class PemFormatTransformer {
 
         StringBuilder cleanedPem = new StringBuilder();
         for (String cert : certs) {
-            cert = cert
-                    .replace("-----BEGIN CERTIFICATE-----", "")
-                    .replace("-----END CERTIFICATE-----", "")
-                    .trim();
+            cert = cert.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "").trim();
 
             if (StringUtils.hasText(cert)) {
                 String[] lines = cert.split("\\s+");
@@ -74,18 +70,24 @@ final class PemFormatTransformer {
         return cleanedPem.toString();
     }
 
-    PrivateKey getPrivateKey(final String pem) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    PrivateKey getPrivateKey(final String pem) {
         try {
-            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decodePemKey(pem)));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("SSL_PRIVATE_KEY: " + e.getMessage(), e);
+            byte[] encodedKey = decodePemKey(pem);
+            if (encodedKey == null) {
+                return null;
+            }
+            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(encodedKey));
+        } catch (Exception e) {
+            LOG.warn("Could not parse SSL_PRIVATE_KEY {} pem={}...", e.getMessage(), pem.substring(0, Math.min(10, pem.length() - 1)), e);
+            return null;
         }
     }
 
     private byte[] decodePemKey(final String pem) {
         final Matcher matcher = PEM_FORMAT.matcher(pem);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("Invalid PEM string");
+            LOG.warn("Invalid PEM string SSL_PRIVATE_KEY pem={}...", pem.substring(0, Math.min(10, pem.length() - 1)));
+            return null;
         }
         return Base64.getMimeDecoder().decode(matcher.group(2));
     }

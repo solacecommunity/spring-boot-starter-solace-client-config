@@ -17,6 +17,7 @@ import java.util.Properties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PemFormatTransformerTest {
@@ -37,8 +38,7 @@ public class PemFormatTransformerTest {
     @Test
     void getPrivateKey_throwsIllegalArgumentException_ifPemStringIsInvalid() {
         final String solacePrivateKey = "-----XXX PRIVATE KEY-----PrivateKey-----YYY PRIVATE KEY-----";
-        final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> uut.getPrivateKey(solacePrivateKey));
-        assertThat(e.getMessage(), equalTo("SSL_PRIVATE_KEY: Invalid PEM string"));
+        assertNull(uut.getPrivateKey(solacePrivateKey));
     }
 
     @Test
