@@ -5,9 +5,6 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.TaskScheduler;
-
-import java.util.Optional;
 
 /**
  * This class configures Solace JCSMP to enable certificates and private keys in the PEM format. This configuration class needs to be
@@ -26,8 +23,8 @@ public class PemFormatConfigurer {
      * @return bean post processor for JCSMP configuration properties
      */
     @Bean
-    public BeanPostProcessor jcsmpPropertiesPostProcessor(Optional<TaskScheduler> taskScheduler, SslCertInfoProperties sslCertInfoProperties) {
+    public static BeanPostProcessor jcsmpPropertiesPostProcessor() {
         JCSMPPropertiesExtension.enableExtendedAuthenticationProperties();
-        return new JCSMPPropertiesPostProcessor(new KeyStoreFactory(new PemFormatTransformer()), taskScheduler, sslCertInfoProperties);
+        return new JCSMPPropertiesPostProcessor(new KeyStoreFactory(new PemFormatTransformer()));
     }
 }

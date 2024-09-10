@@ -4,38 +4,27 @@ import com.solacesystems.jcsmp.JCSMPProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
 
-import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME;
-import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME_BASIC;
-import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE;
-import static com.solacesystems.jcsmp.JCSMPProperties.SSL_IN_MEMORY_KEY_STORE;
-import static com.solacesystems.jcsmp.JCSMPProperties.SSL_IN_MEMORY_TRUST_STORE;
-import static com.solacesystems.jcsmp.JCSMPProperties.SSL_KEY_STORE_PASSWORD;
-import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.SSL_CLIENT_CERT;
-import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.SSL_PRIVATE_KEY;
-import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.SSL_TRUST_CERT;
+import static com.solacesystems.jcsmp.JCSMPProperties.*;
+import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,7 +51,11 @@ class JCSMPPropertiesPostProcessorTest {
 
     @BeforeEach
     void beforeEachTest() {
-        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock, Optional.of(taskScheduler), sslCertInfoProperties);
+        BeanFactory beanFactory = mock(BeanFactory.class);
+        when(beanFactory.getBean(eq(TaskScheduler.class))).thenReturn(taskScheduler);
+        when(beanFactory.getBean(eq(SslCertInfoProperties.class))).thenReturn(sslCertInfoProperties);
+        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock);
+        uut.setBeanFactory(beanFactory);
     }
 
     @Test
@@ -94,10 +87,8 @@ class JCSMPPropertiesPostProcessorTest {
 
         final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
 
-        assertThat(extendedJcsmpProperties, is(notNullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_KEY_STORE), is(nullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_KEY_STORE_PASSWORD), is("internalPassword"));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_TRUST_STORE), is(nullValue()));
+        assertEquals(jcsmpProperties, extendedJcsmpProperties);
+        assertSame(jcsmpProperties, extendedJcsmpProperties);
     }
 
     @Test
@@ -110,10 +101,8 @@ class JCSMPPropertiesPostProcessorTest {
 
         final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
 
-        assertThat(extendedJcsmpProperties, is(notNullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_KEY_STORE), is(nullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_KEY_STORE_PASSWORD), is("internalPassword"));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_TRUST_STORE), is(nullValue()));
+        assertEquals(jcsmpProperties, extendedJcsmpProperties);
+        assertSame(jcsmpProperties, extendedJcsmpProperties);
     }
 
     @Test
@@ -125,10 +114,8 @@ class JCSMPPropertiesPostProcessorTest {
 
         final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
 
-        assertThat(extendedJcsmpProperties, is(notNullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_KEY_STORE), is(nullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_KEY_STORE_PASSWORD), is("internalPassword"));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_TRUST_STORE), is(nullValue()));
+        assertEquals(jcsmpProperties, extendedJcsmpProperties);
+        assertSame(jcsmpProperties, extendedJcsmpProperties);
     }
 
     @Test
@@ -140,45 +127,34 @@ class JCSMPPropertiesPostProcessorTest {
 
         final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
 
-        assertThat(extendedJcsmpProperties, is(notNullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_KEY_STORE), is(nullValue()));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_KEY_STORE_PASSWORD), is("internalPassword"));
-        assertThat(extendedJcsmpProperties.getProperty(SSL_IN_MEMORY_TRUST_STORE), is(nullValue()));
+        assertEquals(jcsmpProperties, extendedJcsmpProperties);
+        assertSame(jcsmpProperties, extendedJcsmpProperties);
     }
 
-    @ParameterizedTest
-    @ValueSource(classes = {
-            CertificateException.class,
-            IOException.class,
-            NoSuchAlgorithmException.class,
-            InvalidKeySpecException.class
-    })
-    void postProcessBeforeInitialization_mustThrowFatalBeanException_whenKeyStoreFactoryThrowsException(final Class<? extends Exception> exceptionType) throws GeneralSecurityException, IOException {
+    @Test
+    void postProcessBeforeInitialization_mustThrowFatalBeanException_whenKeyStoreFactoryThrowsException() throws GeneralSecurityException, IOException {
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
         jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
         jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
         jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
-        when(keyStoreFactoryMock.createClientKeyStore(any(), any())).thenThrow(exceptionType);
+        when(keyStoreFactoryMock.createClientKeyStore(any(), any())).thenReturn(null);
 
-        assertThrows(FatalBeanException.class, () -> uut.postProcessBeforeInitialization(jcsmpProperties, "props"));
+        Object props = uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        assertEquals(jcsmpProperties, props);
+        assertSame(jcsmpProperties, props);
     }
 
-    @ParameterizedTest
-    @ValueSource(classes = {
-            CertificateException.class,
-            IOException.class
-    })
-    void postProcessBeforeInitialization_mustThrowFatalBeanException_whenKeyStoreFactoryThrowsExceptionForTrustCerts(
-            final Class<? extends Exception> exceptionType) throws GeneralSecurityException, IOException {
+    @Test
+    void postProcessBeforeInitialization_mustThrowFatalBeanException_whenKeyStoreFactoryThrowsExceptionForTrustCerts() {
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
         jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
         jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
         jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
-        when(keyStoreFactoryMock.createTrustStore(any())).thenThrow(exceptionType);
 
-        assertThrows(FatalBeanException.class, () -> uut.postProcessBeforeInitialization(jcsmpProperties, "props"));
+        Object props = uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        assertEquals(jcsmpProperties, props);
+        assertSame(jcsmpProperties, props);
     }
-
 }

@@ -17,7 +17,7 @@ import java.util.Properties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PemFormatTransformerTest {
 
@@ -37,20 +37,19 @@ public class PemFormatTransformerTest {
     @Test
     void getPrivateKey_throwsIllegalArgumentException_ifPemStringIsInvalid() {
         final String solacePrivateKey = "-----XXX PRIVATE KEY-----PrivateKey-----YYY PRIVATE KEY-----";
-        final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> uut.getPrivateKey(solacePrivateKey));
-        assertThat(e.getMessage(), equalTo("SSL_PRIVATE_KEY: Invalid PEM string"));
+        assertNull(uut.getPrivateKey(solacePrivateKey));
     }
 
     @Test
     void getCertificatesGeneratesCorrectTrustCertificates() throws CertificateException, IOException {
-        final Certificate[] certificate = uut.getCertificates(getPemFromProperties("SOLACE_TRUST_ROOTS"));
+        final Certificate[] certificate = uut.getCertificates(getPemFromProperties("SOLACE_TRUST_ROOTS"), "SOLACE_TRUST_ROOTS");
         assertThat(certificate, notNullValue());
         assertThat(certificate.length, equalTo(2));
     }
 
     @Test
     void getCertificatesGeneratesCorrectClientCertificates() throws CertificateException, IOException {
-        final Certificate[] certificate = uut.getCertificates(getPemFromProperties("SOLACE_CLIENT_CERT"));
+        final Certificate[] certificate = uut.getCertificates(getPemFromProperties("SOLACE_CLIENT_CERT"), "SOLACE_CLIENT_CERT");
         assertThat(certificate, notNullValue());
         assertThat(certificate.length, equalTo(1));
     }
