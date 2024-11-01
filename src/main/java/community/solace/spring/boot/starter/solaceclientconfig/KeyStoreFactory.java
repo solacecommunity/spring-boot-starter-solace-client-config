@@ -9,7 +9,10 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Objects;
 
 final class KeyStoreFactory {
 
@@ -34,12 +37,31 @@ final class KeyStoreFactory {
             if (certificates == null) {
                 return null;
             }
+
+            if (!privateKeyMatchesCertificate((RSAPrivateCrtKey) privateKey, certificates)) {
+                LOG.error("Non of the given certificates in SSL_CLIENT_CERT matches the give key SSL_PRIVATE_KEY");
+                return null;
+            }
+
             keyStore.setKeyEntry("pk", privateKey, INTERNAL_PASSWORD.toCharArray(), certificates);
+
             return keyStore;
         } catch (Exception exception) {
             LOG.warn("Error during keystore creation", exception);
             return null;
         }
+    }
+
+    private boolean privateKeyMatchesCertificate(RSAPrivateCrtKey privateKey, Certificate[] certificates) {
+        for (Certificate certificate : certificates) {
+            RSAPublicKey publicKey = (RSAPublicKey) certificate.getPublicKey();
+
+            if (Objects.equals(privateKey.getModulus(), publicKey.getModulus())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     String getClientKeyStorePassword() {

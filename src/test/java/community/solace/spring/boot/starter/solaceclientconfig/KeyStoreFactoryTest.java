@@ -8,12 +8,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -52,7 +56,10 @@ class KeyStoreFactoryTest {
     private Certificate unsuitableCertificateTypeMock;
 
     @Mock
-    private PrivateKey privateKeyMock;
+    private RSAPrivateCrtKey privateKeyMock;
+
+    @Mock
+    private RSAPublicKey publicKeyMock;
 
     @BeforeEach
     void beforeEachTest() {
@@ -67,6 +74,10 @@ class KeyStoreFactoryTest {
     @Test
     void createClientKeyStore_mustCreateKeyStoreObjectWithCertificates_whenCertificatesTypeCorrect() throws GeneralSecurityException,
             IOException {
+        when(publicKeyMock.getModulus()).thenReturn(new BigInteger("123"));
+        when(privateKeyMock.getModulus()).thenReturn(new BigInteger("123"));
+
+        when(certificateMock.getPublicKey()).thenReturn(publicKeyMock);
         when(pemFormatTransformerMock.getPrivateKey(anyString())).thenReturn(privateKeyMock);
         when(privateKeyMock.getFormat()).thenReturn("PKCS#8");
         when(privateKeyMock.getEncoded()).thenReturn("encoded key".getBytes());
@@ -75,6 +86,19 @@ class KeyStoreFactoryTest {
         final KeyStore clientKeyStore = uut.createClientKeyStore(PEM_PRIVATE_KEY, PEM_CERTIFICATE);
 
         assertThat(clientKeyStore.isKeyEntry("pk"), is(true));
+    }
+
+    @Test
+    void createClientKeyStore_mustThrowException_whenNoCertificatesMatchesPrivateKey() throws GeneralSecurityException,
+            IOException {
+        when(publicKeyMock.getModulus()).thenReturn(new BigInteger("123"));
+        when(privateKeyMock.getModulus()).thenReturn(new BigInteger("456"));
+
+        when(certificateMock.getPublicKey()).thenReturn(publicKeyMock);
+        when(pemFormatTransformerMock.getPrivateKey(anyString())).thenReturn(privateKeyMock);
+        when(pemFormatTransformerMock.getCertificates(anyString(), anyString())).thenReturn(new Certificate[]{certificateMock});
+
+        assertNull(uut.createClientKeyStore(PEM_PRIVATE_KEY, PEM_CERTIFICATE));
     }
 
     @Test
