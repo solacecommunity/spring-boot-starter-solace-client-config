@@ -41,8 +41,17 @@ jobs:
         if: success() || failure()
         uses: scacap/action-surefire-report@v1
 
-      - name: Upload JaCoCo coverage report artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Report
+        uses: 'actions/upload-artifact@v2'
         with:
-          name: jacoco.xml
-          path: ./target/site/jacoco/jacoco.xml
+          name: jacoco-report
+          path: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+      - name: Add coverage
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.7.1
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
+          title: Code Coverage

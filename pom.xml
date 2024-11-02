@@ -325,6 +325,8 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
                 <configuration>
+                    <output>file</output>
+                    <append>true</append>
                 </configuration>
                 <executions>
                     <execution>
@@ -334,7 +336,7 @@
                     </execution>
                     <execution>
                         <id>report</id>
-                        <phase>prepare-package</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
