@@ -50,13 +50,12 @@ final class KeyStoreFactory {
     }
 
     private boolean privateKeyMatchesCertificate(PrivateKey privateKey, Certificate[] certificates) {
-        for (Certificate certificate : certificates) {
-            if (KeyPairChecker.isKeyPair(privateKey, certificate.getPublicKey())) {
-                return true;
-            }
+        if (certificates.length < 1) {
+            return false;
         }
 
-        return false;
+        // The first cert in the chain has to match key, all others are only the trust chain.
+        return KeyPairChecker.isKeyPair(privateKey, certificates[0].getPublicKey());
     }
 
     String getClientKeyStorePassword() {

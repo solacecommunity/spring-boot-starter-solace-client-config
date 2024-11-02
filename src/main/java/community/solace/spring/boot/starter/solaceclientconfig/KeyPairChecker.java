@@ -1,5 +1,8 @@
 package community.solace.spring.boot.starter.solaceclientconfig;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -7,6 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public class KeyPairChecker {
+    private static final Logger LOG = LoggerFactory.getLogger(KeyPairChecker.class);
+
+
     private static final Map<String, String> SIGNATURE_ALGORITHMS = Map.of(
             "DSA", "SHA256WithDSA",
             "RSA", "SHA256WithRSA",
@@ -28,7 +34,8 @@ public class KeyPairChecker {
             var signed = signature.sign();
             signature.initVerify(publicKey);
             return signature.verify(signed);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOG.error("Unable to load key or cert for matching check", e);
             return false;
         }
     }
