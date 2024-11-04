@@ -5,15 +5,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPublicKey;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -52,7 +55,10 @@ class KeyStoreFactoryTest {
     private Certificate unsuitableCertificateTypeMock;
 
     @Mock
-    private PrivateKey privateKeyMock;
+    private RSAPrivateCrtKey privateKeyMock;
+
+    @Mock
+    private RSAPublicKey publicKeyMock;
 
     @BeforeEach
     void beforeEachTest() {
@@ -67,14 +73,29 @@ class KeyStoreFactoryTest {
     @Test
     void createClientKeyStore_mustCreateKeyStoreObjectWithCertificates_whenCertificatesTypeCorrect() throws GeneralSecurityException,
             IOException {
+        try (MockedStatic<KeyPairChecker> keyPairChecker = Mockito.mockStatic(KeyPairChecker.class)) {
+            keyPairChecker.when(() -> KeyPairChecker.isKeyPair(any(), any())).thenReturn(true);
+
+            when(certificateMock.getPublicKey()).thenReturn(publicKeyMock);
+            when(pemFormatTransformerMock.getPrivateKey(anyString())).thenReturn(privateKeyMock);
+            when(privateKeyMock.getFormat()).thenReturn("PKCS#8");
+            when(privateKeyMock.getEncoded()).thenReturn("encoded key".getBytes());
+            when(pemFormatTransformerMock.getCertificates(anyString(), anyString())).thenReturn(new Certificate[]{certificateMock});
+
+            final KeyStore clientKeyStore = uut.createClientKeyStore(PEM_PRIVATE_KEY, PEM_CERTIFICATE);
+
+            assertThat(clientKeyStore.isKeyEntry("pk"), is(true));
+        }
+    }
+
+    @Test
+    void createClientKeyStore_mustThrowException_whenNoCertificatesMatchesPrivateKey() throws GeneralSecurityException,
+            IOException {
+        when(certificateMock.getPublicKey()).thenReturn(publicKeyMock);
         when(pemFormatTransformerMock.getPrivateKey(anyString())).thenReturn(privateKeyMock);
-        when(privateKeyMock.getFormat()).thenReturn("PKCS#8");
-        when(privateKeyMock.getEncoded()).thenReturn("encoded key".getBytes());
         when(pemFormatTransformerMock.getCertificates(anyString(), anyString())).thenReturn(new Certificate[]{certificateMock});
 
-        final KeyStore clientKeyStore = uut.createClientKeyStore(PEM_PRIVATE_KEY, PEM_CERTIFICATE);
-
-        assertThat(clientKeyStore.isKeyEntry("pk"), is(true));
+        assertNull(uut.createClientKeyStore(PEM_PRIVATE_KEY, PEM_CERTIFICATE));
     }
 
     @Test

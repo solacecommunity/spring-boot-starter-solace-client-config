@@ -34,12 +34,28 @@ final class KeyStoreFactory {
             if (certificates == null) {
                 return null;
             }
+
+            if (!privateKeyMatchesCertificate(privateKey, certificates)) {
+                LOG.error("Non of the given certificates in SSL_CLIENT_CERT matches the give key SSL_PRIVATE_KEY");
+                return null;
+            }
+
             keyStore.setKeyEntry("pk", privateKey, INTERNAL_PASSWORD.toCharArray(), certificates);
+
             return keyStore;
         } catch (Exception exception) {
             LOG.warn("Error during keystore creation", exception);
             return null;
         }
+    }
+
+    private boolean privateKeyMatchesCertificate(PrivateKey privateKey, Certificate[] certificates) {
+        if (certificates.length < 1) {
+            return false;
+        }
+
+        // The first cert in the chain has to match key, all others are only the trust chain.
+        return KeyPairChecker.isKeyPair(privateKey, certificates[0].getPublicKey());
     }
 
     String getClientKeyStorePassword() {
