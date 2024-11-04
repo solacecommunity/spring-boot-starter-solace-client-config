@@ -35,7 +35,7 @@ public class KeyPairChecker {
             signature.initVerify(publicKey);
             return signature.verify(signed);
         } catch (Exception e) {
-            LOG.error("Unable to load key or cert for matching check", e);
+            LOG.error("Unable to check key pair", e);
             return false;
         }
     }
