@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
-        <relativePath /> <!-- lookup parent from repository -->
+        <version>3.4.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.5</version>
 
     <name>spring-boot-starter-solace-client-config</name>
     <description>Provides functionality to define solace client certificate PEM text and private key directly in env
@@ -41,7 +41,7 @@
         </developer>
     </developers>
 
-     <scm>
+    <scm>
         <url>https://github.com/solacecommunity/spring-cloud-stream-request-reply.git</url>
         <connection>scm:git:git://github.com/solacecommunity/spring-cloud-stream-request-reply.git</connection>
         <developerConnection>scm:git:git@github.com/solacecommunity/spring-cloud-stream-request-reply.git
@@ -50,44 +50,29 @@
     </scm>
 
     <properties>
-        <solace.jcsmp.version>10.24.1</solace.jcsmp.version>
-        <spring.boot.version>3.3.3</spring.boot.version>
+        <solace.jcsmp.version>10.25.2</solace.jcsmp.version>
+        <spring.boot.version>3.4.2</spring.boot.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.yaml</groupId>
-                    <artifactId>snakeyaml</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>2.2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>com.solacesystems</groupId>
             <artifactId>sol-jcsmp</artifactId>
             <version>${solace.jcsmp.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.solace.spring.boot</groupId>
             <artifactId>solace-java-spring-boot-autoconfigure</artifactId>
-            <version>5.0.0</version>
-            <scope>provided</scope>
+            <version>5.2.0</version>
         </dependency>
 
         <dependency>
@@ -102,14 +87,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
-
-        <!-- spring-cloud-starter-stream-solace creates JCSMPProperties Bean for tests.-->
-        <dependency>
-            <groupId>com.solace.spring.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-solace</artifactId>
-            <version>5.1.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -145,7 +122,7 @@
             </distributionManagement>
             <build>
                 <plugins>
-                     <plugin>
+                    <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
                         <version>1.6.13</version>
