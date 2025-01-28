@@ -5,15 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.Certificate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,7 +25,7 @@ abstract class AbstractPemFormatConfigurerIT {
     @Autowired
     private ApplicationContext context;
 
-    @MockBean
+    @MockitoBean
     private SslCertInfoProperties sslCertInfoProperties;
 
     @Test
