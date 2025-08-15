@@ -24,7 +24,7 @@ Add a dependency in your application POM:
 <dependency>
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>1.0.5</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
