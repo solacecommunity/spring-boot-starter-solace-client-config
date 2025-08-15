@@ -10,6 +10,7 @@ Consult the table below to determine which version you need to use:
 
 | spring-boot-starter-solace-client-config | Spring Boot | sol-jcsmp |
 |------------------------------------------|-------------|-----------|
+| 1.1.0                                    | 3.5.4       | 10.27.0   |
 | 1.0.5                                    | 3.4.2       | 10.25.2   |
 | 1.0.3                                    | 3.3.3       | 10.24.1   |
 | 1.0.2                                    | 3.3.0       | 10.23.0   |
