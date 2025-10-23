@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.solace.spring.boot</groupId>
             <artifactId>solace-java-spring-boot-autoconfigure</artifactId>
-            <version>5.4.2</version>
+            <version>5.5.0</version>
         </dependency>
 
         <dependency>
