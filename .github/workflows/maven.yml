@@ -6,8 +6,11 @@ on:
   pull_request:
     branches: [ master ]
 
-jobs:
+permissions:
+  checks: write
+  contents: read
 
+jobs:
   compile:
     runs-on: ubuntu-latest
     steps:
