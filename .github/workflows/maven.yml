@@ -45,7 +45,7 @@ jobs:
         uses: scacap/action-surefire-report@v1
 
       - name: Upload Report
-        uses: 'actions/upload-artifact@v4'
+        uses: 'actions/upload-artifact@v5'
         with:
           name: jacoco-report
           path: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
