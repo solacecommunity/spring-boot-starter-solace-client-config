@@ -50,7 +50,7 @@
     </scm>
 
     <properties>
-        <solace.jcsmp.version>10.28.2</solace.jcsmp.version>
+        <solace.jcsmp.version>10.29.0</solace.jcsmp.version>
         <spring.boot.version>3.5.7</spring.boot.version>
     </properties>
 
