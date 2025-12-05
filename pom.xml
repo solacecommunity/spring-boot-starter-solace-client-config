@@ -11,7 +11,7 @@
 
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
 
     <name>spring-boot-starter-solace-client-config</name>
     <description>Provides functionality to define solace client certificate PEM text and private key directly in env
@@ -52,6 +52,8 @@
     <properties>
         <solace.jcsmp.version>10.29.0</solace.jcsmp.version>
         <spring.boot.version>3.5.8</spring.boot.version>
+        <!-- Stop spring from overwriting dependencies of the jcsmp lib -->
+        <netty.version>4.2.7.Final</netty.version>
     </properties>
 
     <dependencies>
@@ -69,11 +71,6 @@
             <artifactId>sol-jcsmp</artifactId>
             <version>${solace.jcsmp.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.solace.spring.boot</groupId>
-            <artifactId>solace-java-spring-boot-autoconfigure</artifactId>
-            <version>5.5.0</version>
-        </dependency>
 
         <dependency>
             <!-- Import Spring Boot dependency management -->
@@ -86,11 +83,81 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.gsonfire</groupId>
+            <artifactId>gson-fire</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>5.3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <version>5.3.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.41</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>2.2.41</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-models -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>2.2.40</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -210,6 +277,18 @@
                             </sources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>add-generated-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/generated-test-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -251,6 +330,7 @@
                 <configuration>
                     <source>17</source>
                     <detectJavaApiLink>false</detectJavaApiLink>
+                    <excludePackageNames>com.solace.test.integration.*</excludePackageNames>
                 </configuration>
             </plugin>
             <plugin>
@@ -265,6 +345,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>com/solace/test/integration/**</excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -317,6 +400,105 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>io.swagger.codegen.v3</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>3.0.75</version>
+                <executions>
+                    <execution>
+                        <id>generate-semp-action-api</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/test/resources/semp/semp-v2-swagger-action.yaml
+                            </inputSpec>
+                            <apiPackage>com.solace.test.integration.semp.v2.action.api</apiPackage>
+                            <modelPackage>com.solace.test.integration.semp.v2.action.model</modelPackage>
+                            <modelNamePrefix>Action</modelNamePrefix>
+                            <language>java</language>
+                            <library>okhttp4-gson</library>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <output>${project.build.directory}/generated-test-sources</output>
+                            <configOptions>
+                                <sourceFolder>.</sourceFolder>
+                                <disallowAdditionalPropertiesIfNotPresent>false
+                                </disallowAdditionalPropertiesIfNotPresent>
+                                <interfaceOnly>true</interfaceOnly>
+                                <useTags>true</useTags>
+                                <dateLibrary>java8</dateLibrary>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-semp-config-api</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/test/resources/semp/semp-v2-swagger-config.yaml
+                            </inputSpec>
+                            <apiPackage>com.solace.test.integration.semp.v2.config.api</apiPackage>
+                            <modelPackage>com.solace.test.integration.semp.v2.config.model</modelPackage>
+                            <modelNamePrefix>Config</modelNamePrefix>
+                            <language>java</language>
+                            <library>okhttp4-gson</library>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <output>${project.build.directory}/generated-test-sources</output>
+                            <configOptions>
+                                <sourceFolder>.</sourceFolder>
+                                <disallowAdditionalPropertiesIfNotPresent>false
+                                </disallowAdditionalPropertiesIfNotPresent>
+                                <interfaceOnly>true</interfaceOnly>
+                                <useTags>true</useTags>
+                                <dateLibrary>java8</dateLibrary>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-semp-monitor-api</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/test/resources/semp/semp-v2-swagger-monitor.yaml
+                            </inputSpec>
+                            <apiPackage>com.solace.test.integration.semp.v2.monitor.api</apiPackage>
+                            <modelPackage>com.solace.test.integration.semp.v2.monitor.model</modelPackage>
+                            <modelNamePrefix>Monitor</modelNamePrefix>
+                            <language>java</language>
+                            <library>okhttp4-gson</library>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <output>${project.build.directory}/generated-test-sources</output>
+                            <configOptions>
+                                <sourceFolder>.</sourceFolder>
+                                <disallowAdditionalPropertiesIfNotPresent>false
+                                </disallowAdditionalPropertiesIfNotPresent>
+                                <interfaceOnly>true</interfaceOnly>
+                                <useTags>true</useTags>
+                                <dateLibrary>java8</dateLibrary>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                            </configOptions>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -1,1 +1,1 @@
-community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer
+community.solace.spring.boot.starter.solaceclientconfig.SolaceJavaAutoConfiguration
