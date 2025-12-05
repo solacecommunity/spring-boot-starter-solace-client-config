@@ -6,13 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.util.Optional;
+import java.util.Map;
 
 import static com.solacesystems.jcsmp.JCSMPProperties.*;
 import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.*;
@@ -28,11 +27,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JCSMPPropertiesPostProcessorTest {
+class JCSMPAuthenticationPropertiesPostProcessorTest {
 
     private static final String TEST_PASSWORD = "internalPassword";
 
-    private JCSMPPropertiesPostProcessor uut;
+    private JCSMPAuthenticationPropertiesPostProcessor uut;
 
     @Mock
     private KeyStoreFactory keyStoreFactoryMock;
@@ -51,11 +50,11 @@ class JCSMPPropertiesPostProcessorTest {
 
     @BeforeEach
     void beforeEachTest() {
-        BeanFactory beanFactory = mock(BeanFactory.class);
-        when(beanFactory.getBean(eq(TaskScheduler.class))).thenReturn(taskScheduler);
-        when(beanFactory.getBean(eq(SslCertInfoProperties.class))).thenReturn(sslCertInfoProperties);
-        uut = new JCSMPPropertiesPostProcessor(keyStoreFactoryMock);
-        uut.setBeanFactory(beanFactory);
+        uut = new JCSMPAuthenticationPropertiesPostProcessor(
+                keyStoreFactoryMock,
+                taskScheduler,
+                sslCertInfoProperties
+        );
     }
 
     @Test
@@ -65,11 +64,15 @@ class JCSMPPropertiesPostProcessorTest {
         when(keyStoreFactoryMock.createTrustStore(any())).thenReturn(trustStoreMock);
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
-        jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
-        jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
-        jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
 
-        final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+        javaApiProperties.put(SSL_CLIENT_CERT, "clientCertificatePemString");
+        javaApiProperties.put(SSL_PRIVATE_KEY, "privateKeyPemString");
+        javaApiProperties.put(SSL_TRUST_CERT, "trustCertificatePemString");
+
+        final JCSMPProperties extendedJcsmpProperties = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
 
         assertThat(extendedJcsmpProperties, is(notNullValue()));
         assertThat(extendedJcsmpProperties.getProperty(AUTHENTICATION_SCHEME), is(sameInstance(AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE)));
@@ -82,10 +85,14 @@ class JCSMPPropertiesPostProcessorTest {
     void postProcessBeforeInitialization_mustNotSetAuthenticationProperties_whenClientCertificateIsMissing() {
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
-        jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
-        jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
 
-        final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+        javaApiProperties.put(SSL_PRIVATE_KEY, "privateKeyPemString");
+        javaApiProperties.put(SSL_TRUST_CERT, "trustCertificatePemString");
+
+        final JCSMPProperties extendedJcsmpProperties = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
 
         assertEquals(jcsmpProperties, extendedJcsmpProperties);
         assertSame(jcsmpProperties, extendedJcsmpProperties);
@@ -95,11 +102,13 @@ class JCSMPPropertiesPostProcessorTest {
     void postProcessBeforeInitialization_mustNotSetAuthenticationProperties_whenAuthenticationSchemeNotCompatible() {
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_BASIC);
-        jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
-        jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
-        jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
 
-        final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+
+        final JCSMPProperties extendedJcsmpProperties = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
 
         assertEquals(jcsmpProperties, extendedJcsmpProperties);
         assertSame(jcsmpProperties, extendedJcsmpProperties);
@@ -109,10 +118,14 @@ class JCSMPPropertiesPostProcessorTest {
     void postProcessBeforeInitialization_mustNotSetAuthenticationProperties_whenPrivateKeyIsMissing() {
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
-        jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
-        jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
 
-        final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+        javaApiProperties.put(SSL_CLIENT_CERT, "clientCertificatePemString");
+        javaApiProperties.put(SSL_TRUST_CERT, "trustCertificatePemString");
+
+        final JCSMPProperties extendedJcsmpProperties = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
 
         assertEquals(jcsmpProperties, extendedJcsmpProperties);
         assertSame(jcsmpProperties, extendedJcsmpProperties);
@@ -125,8 +138,14 @@ class JCSMPPropertiesPostProcessorTest {
         jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
         jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
 
-        final JCSMPProperties extendedJcsmpProperties = (JCSMPProperties) uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+        javaApiProperties.put(SSL_CLIENT_CERT, "clientCertificatePemString");
+        javaApiProperties.put(SSL_PRIVATE_KEY, "privateKeyPemString");
+        javaApiProperties.put(SSL_TRUST_CERT, "trustCertificatePemString");
 
+        final JCSMPProperties extendedJcsmpProperties = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
         assertEquals(jcsmpProperties, extendedJcsmpProperties);
         assertSame(jcsmpProperties, extendedJcsmpProperties);
     }
@@ -135,12 +154,16 @@ class JCSMPPropertiesPostProcessorTest {
     void postProcessBeforeInitialization_mustThrowFatalBeanException_whenKeyStoreFactoryThrowsException() throws GeneralSecurityException, IOException {
         final JCSMPProperties jcsmpProperties = new JCSMPProperties();
         jcsmpProperties.setProperty(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
-        jcsmpProperties.setProperty(SSL_CLIENT_CERT, "clientCertificatePemString");
-        jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
-        jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
         when(keyStoreFactoryMock.createClientKeyStore(any(), any())).thenReturn(null);
 
-        Object props = uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+        javaApiProperties.put(SSL_CLIENT_CERT, "clientCertificatePemString");
+        javaApiProperties.put(SSL_PRIVATE_KEY, "privateKeyPemString");
+        javaApiProperties.put(SSL_TRUST_CERT, "trustCertificatePemString");
+
+        Object props = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
         assertEquals(jcsmpProperties, props);
         assertSame(jcsmpProperties, props);
     }
@@ -153,7 +176,14 @@ class JCSMPPropertiesPostProcessorTest {
         jcsmpProperties.setProperty(SSL_PRIVATE_KEY, "privateKeyPemString");
         jcsmpProperties.setProperty(SSL_TRUST_CERT, "trustCertificatePemString");
 
-        Object props = uut.postProcessBeforeInitialization(jcsmpProperties, "props");
+        final SolaceJavaProperties javaProperties = new SolaceJavaProperties();
+        Map<String, String> javaApiProperties = javaProperties.getApiProperties();
+        javaApiProperties.put(AUTHENTICATION_SCHEME, AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE);
+        javaApiProperties.put(SSL_CLIENT_CERT, "clientCertificatePemString");
+        javaApiProperties.put(SSL_PRIVATE_KEY, "privateKeyPemString");
+        javaApiProperties.put(SSL_TRUST_CERT, "trustCertificatePemString");
+
+        Object props = uut.addAuthenticationProperties(jcsmpProperties, javaProperties);
         assertEquals(jcsmpProperties, props);
         assertSame(jcsmpProperties, props);
     }

@@ -4,10 +4,6 @@ import com.solacesystems.jcsmp.JCSMPProperties;
 import com.solacesystems.jcsmp.JCSMPPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.StringUtils;
 
@@ -25,64 +21,43 @@ import static com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension.*;
 /**
  * A bean post processor used to enhance the JCSMP configuration properties with authentication objects created from the PEM format.
  */
-final class JCSMPPropertiesPostProcessor implements BeanPostProcessor, BeanFactoryAware {
+final class JCSMPAuthenticationPropertiesPostProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JCSMPPropertiesPostProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JCSMPAuthenticationPropertiesPostProcessor.class);
 
     private final KeyStoreFactory keyStoreFactory;
-    private TaskScheduler taskScheduler;
-    private SslCertInfoProperties sslCertInfoProperties;
+    private final TaskScheduler taskScheduler;
+    private final SslCertInfoProperties sslCertInfoProperties;
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        try {
-            taskScheduler = beanFactory.getBean(TaskScheduler.class);
-        } catch (Exception ex) {
-            taskScheduler = null;
-        }
-        sslCertInfoProperties = beanFactory.getBean(SslCertInfoProperties.class);
-    }
-
-    public JCSMPPropertiesPostProcessor(KeyStoreFactory keyStoreFactory) {
+    public JCSMPAuthenticationPropertiesPostProcessor(KeyStoreFactory keyStoreFactory, TaskScheduler taskScheduler, SslCertInfoProperties sslCertInfoProperties) {
         this.keyStoreFactory = keyStoreFactory;
+        this.taskScheduler = taskScheduler;
+        this.sslCertInfoProperties = sslCertInfoProperties;
     }
 
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
-        if (sslCertInfoProperties == null) {
-            return bean;
-        }
-        if (bean instanceof JCSMPProperties) {
-            LOG.debug("Postprocessing {} bean", bean.getClass());
-            return addAuthenticationProperties(((JCSMPProperties) bean));
-        }
-        return bean;
-    }
-
-    private JCSMPProperties addAuthenticationProperties(final JCSMPProperties jcsmpProperties) {
-        if (!AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE.equals(jcsmpProperties.getStringProperty(AUTHENTICATION_SCHEME))) {
+    JCSMPProperties addAuthenticationProperties(final JCSMPProperties jcsmpProperties, final SolaceJavaProperties javaProperties) {
+        if (!AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE.equals(javaProperties.getStringProperty(AUTHENTICATION_SCHEME))) {
             LOG.debug("AUTHENTICATION_SCHEME is not set to AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE, skip...");
             return jcsmpProperties;
         }
-        if (!StringUtils.hasText(jcsmpProperties.getStringProperty(SSL_PRIVATE_KEY))) {
+        if (!StringUtils.hasText(javaProperties.getStringProperty(SSL_PRIVATE_KEY))) {
             LOG.warn("No SSL_PRIVATE_KEY present, skip...");
             return jcsmpProperties;
         }
-        if (!StringUtils.hasText(jcsmpProperties.getStringProperty(SSL_CLIENT_CERT))) {
+        if (!StringUtils.hasText(javaProperties.getStringProperty(SSL_CLIENT_CERT))) {
             LOG.warn("No SSL_CLIENT_CERT present, skip...");
             return jcsmpProperties;
         }
 
         LOG.debug("Adding Solace ClientCert properties to JSCMPProperties");
 
-        KeyStore keyStore = keyStoreFactory.createClientKeyStore(jcsmpProperties.getStringProperty(SSL_PRIVATE_KEY), jcsmpProperties.getStringProperty(SSL_CLIENT_CERT));
+        KeyStore keyStore = keyStoreFactory.createClientKeyStore(javaProperties.getStringProperty(SSL_PRIVATE_KEY), javaProperties.getStringProperty(SSL_CLIENT_CERT));
 
         if (keyStore == null) {
             LOG.warn("No keyStore was created, skip...");
             return jcsmpProperties;
         }
-        checkValidToPeriodically(keyStoreFactory.getValidTo(jcsmpProperties.getStringProperty(SSL_CLIENT_CERT)));
+        checkValidToPeriodically(keyStoreFactory.getValidTo(javaProperties.getStringProperty(SSL_CLIENT_CERT)));
         jcsmpProperties.setProperty(SSL_IN_MEMORY_KEY_STORE, keyStore);
         jcsmpProperties.setProperty(SSL_KEY_STORE_PASSWORD, keyStoreFactory.getClientKeyStorePassword());
 
@@ -94,12 +69,12 @@ final class JCSMPPropertiesPostProcessor implements BeanPostProcessor, BeanFacto
             unsetProperty(jcsmpProperties, "SSL_PRIVATE_KEY_ALIAS");
         }
 
-        if (!StringUtils.hasText(jcsmpProperties.getStringProperty(SSL_TRUST_CERT))) {
+        if (!StringUtils.hasText(javaProperties.getStringProperty(SSL_TRUST_CERT))) {
             LOG.debug("No SSL_TRUST_CERT present, dont add SSL_IN_MEMORY_TRUST_STORE");
             return jcsmpProperties;
         }
         LOG.debug("Adding Solace TrustStore properties to JSCMPProperties");
-        KeyStore trustStore = keyStoreFactory.createTrustStore(jcsmpProperties.getStringProperty(SSL_TRUST_CERT));
+        KeyStore trustStore = keyStoreFactory.createTrustStore(javaProperties.getStringProperty(SSL_TRUST_CERT));
         jcsmpProperties.setProperty(SSL_IN_MEMORY_TRUST_STORE, trustStore);
         if (jcsmpProperties.getProperty("SSL_TRUST_STORE") instanceof String && !StringUtils.hasText((CharSequence) jcsmpProperties.getProperty("SSL_TRUST_STORE"))) {
             jcsmpProperties.setProperty("SSL_TRUST_STORE", "");
