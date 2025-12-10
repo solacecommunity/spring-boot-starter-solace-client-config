@@ -31,6 +31,23 @@ Add a dependency in your application POM:
 </dependency>
 ```
 
+## Breaking changes in 2.0.0
+
+The config option:
+```yaml
+spring:
+  cloud:
+    stream:
+      binders:
+        <solace_binder_name>:
+          type: solace
+          environment:
+            spring.main.sources: community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer
+```
+is no longer supported. And have to be removed from your application.
+
+
+
 ## Overview
 
 As stated this project provides a Spring Boot Auto-Configuration implementation and a Spring Boot Starter pom for the Solace Java API. 
@@ -115,27 +132,6 @@ solace:
       SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
       SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
       SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS:}
-```
-
-When the configuration is made directly in the binder config, it requires additionally the
-`spring.main.sources: community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer` property to enable the
-PemFormatConfigurer in the binder context.
-```yaml
-spring:
-  cloud:
-    stream:
-      binders:
-        <solace_binder_name>:
-          type: solace
-          environment:
-            spring.main.sources: community.solace.spring.boot.starter.solaceclientconfig.PemFormatConfigurer
-            solace:
-              java:
-                apiProperties:
-                  AUTHENTICATION_SCHEME: AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE
-                  SSL_CLIENT_CERT: ${SOLACE_CLIENT_CERT}
-                  SSL_PRIVATE_KEY: ${SOLACE_PRIVATE_KEY}
-                  SSL_TRUST_CERT: ${SOLACE_TRUST_ROOTS:}
 ```
 
 Note, that for both configuration cases, all 4 API properties (AUTHENTICATION_SCHEME, SSL_CLIENT_CERT, SSL_PRIVATE_KEY, SSL_TRUST_CERT) are required to 
