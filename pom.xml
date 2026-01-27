@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.8</version>
+        <version>3.5.10</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,7 +51,7 @@
 
     <properties>
         <solace.jcsmp.version>10.29.0</solace.jcsmp.version>
-        <spring.boot.version>3.5.8</spring.boot.version>
+        <spring.boot.version>3.5.10</spring.boot.version>
         <!-- Stop spring from overwriting dependencies of the jcsmp lib -->
         <netty.version>4.2.7.Final</netty.version>
     </properties>
