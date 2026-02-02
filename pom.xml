@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.8</version>
+        <version>4.0.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.1</version>
 
     <name>spring-boot-starter-solace-client-config</name>
     <description>Provides functionality to define solace client certificate PEM text and private key directly in env
@@ -51,9 +51,7 @@
 
     <properties>
         <solace.jcsmp.version>10.29.0</solace.jcsmp.version>
-        <spring.boot.version>3.5.8</spring.boot.version>
-        <!-- Stop spring from overwriting dependencies of the jcsmp lib -->
-        <netty.version>4.2.7.Final</netty.version>
+        <spring.boot.version>4.0.2</spring.boot.version>
     </properties>
 
     <dependencies>
@@ -70,15 +68,6 @@
             <groupId>com.solacesystems</groupId>
             <artifactId>sol-jcsmp</artifactId>
             <version>${solace.jcsmp.version}</version>
-        </dependency>
-
-        <dependency>
-            <!-- Import Spring Boot dependency management -->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <version>${spring.boot.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
         </dependency>
 
         <dependency>
@@ -101,6 +90,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -110,7 +104,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
@@ -161,6 +155,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- Import Spring Boot dependency management -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <distributionManagement>
         <snapshotRepository>
