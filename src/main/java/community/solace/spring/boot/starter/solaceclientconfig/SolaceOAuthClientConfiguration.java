@@ -2,8 +2,8 @@ package community.solace.spring.boot.starter.solaceclientconfig;
 
 import com.solacesystems.jcsmp.DefaultSolaceSessionOAuth2TokenProvider;
 import com.solacesystems.jcsmp.JCSMPProperties;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
