@@ -10,6 +10,7 @@ Consult the table below to determine which version you need to use:
 
 | spring-boot-starter-solace-client-config | Spring Boot | sol-jcsmp |
 |------------------------------------------|-------------|-----------|
+| 3.0.2                                    | 4.0.2       | 10.29.0   |
 | 3.0.1                                    | 4.0.2       | 10.29.0   |
 | 2.0.0                                    | 3.5.8       | 10.29.0   |
 | 1.1.0                                    | 3.5.4       | 10.27.0   |
@@ -26,7 +27,7 @@ Add a dependency in your application POM:
 <dependency>
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
 </dependency>
 ```
 

@@ -11,7 +11,7 @@
 
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
 
     <name>spring-boot-starter-solace-client-config</name>
     <description>Provides functionality to define solace client certificate PEM text and private key directly in env
