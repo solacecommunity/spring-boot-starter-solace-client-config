@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.4</version>
+        <version>4.0.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,7 +51,7 @@
 
     <properties>
         <solace.jcsmp.version>10.29.1</solace.jcsmp.version>
-        <spring.boot.version>4.0.4</spring.boot.version>
+        <spring.boot.version>4.0.5</spring.boot.version>
     </properties>
 
     <dependencies>
