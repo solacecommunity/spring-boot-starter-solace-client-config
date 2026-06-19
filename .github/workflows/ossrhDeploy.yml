@@ -15,6 +15,22 @@ jobs:
           distribution: adopt
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+      - id: validate-release-version
+        name: Validate release version matches pom.xml
+        run: |
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          POM_VERSION="$(mvn -q --batch-mode -DforceStdout help:evaluate -Dexpression=project.version | sed -n '/^[0-9A-Za-z][0-9A-Za-z.\-]*$/p' | tail -n 1)"
+
+          if [ -z "$POM_VERSION" ]; then
+            echo "::error::Could not resolve project.version from pom.xml"
+            exit 1
+          fi
+
+          if [ "$RELEASE_VERSION" != "$POM_VERSION" ]; then
+            echo "::error::Release tag version '$RELEASE_VERSION' does not match pom.xml project.version '$POM_VERSION'"
+            exit 1
+          fi
       - id: install-secret-key
         name: Install gpg secret key
         run: |
