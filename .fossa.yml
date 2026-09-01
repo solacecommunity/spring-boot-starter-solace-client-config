@@ -1,0 +1,25 @@
+version: 3
+
+project:
+  locator: solacecommunity_spring-boot-starter-solace-client-config
+  id: solacecommunity_spring-boot-starter-solace-client-config
+  name: spring-boot-starter-solace-client-config
+  teams: []
+  labels:
+    - java
+
+vendoredDependencies:
+  forceRescans: false
+  scanMethod: CLILicenseScan
+  licenseScanPathFilters:
+    exclude:
+      - "./.git"
+      - "./.github"
+
+paths:
+  exclude:
+    - ./.git
+    - ./.github
+
+telemetry:
+  scope: full
