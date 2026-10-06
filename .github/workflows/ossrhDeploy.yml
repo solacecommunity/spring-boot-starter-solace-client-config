@@ -12,7 +12,7 @@ jobs:
         with:
           java-version: 17
           server-id: ossrh
-          distribution: adopt
+          distribution: temurin
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - id: validate-release-version
