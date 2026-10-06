@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           java-version: '21'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Compile with Maven
         run: mvn compile --file pom.xml
@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           java-version: '21'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Verify with Maven
         run: mvn verify --file pom.xml -Dgpg.skip
