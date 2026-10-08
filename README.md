@@ -31,7 +31,7 @@ Add a dependency in your application POM:
 <dependency>
     <groupId>community.solace.spring.boot</groupId>
     <artifactId>spring-boot-starter-solace-client-config</artifactId>
-    <version>3.1.12</version>
+    <version>3.1.3</version>
 </dependency>
 ```
 
