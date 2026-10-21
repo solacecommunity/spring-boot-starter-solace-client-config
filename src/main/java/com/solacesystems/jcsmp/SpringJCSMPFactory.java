@@ -1,7 +1,6 @@
 package com.solacesystems.jcsmp;
 
 import static com.solacesystems.jcsmp.JCSMPProperties.AUTHENTICATION_SCHEME;
-import org.springframework.lang.Nullable;
 
 /**
  * Wrapper of JCSMP Singleton Factory to more easily work within Spring Auto Configuration
@@ -13,7 +12,7 @@ public class SpringJCSMPFactory {
     protected SolaceSessionOAuth2TokenProvider solaceSessionOAuth2TokenProvider;
 
     public SpringJCSMPFactory(JCSMPProperties properties,
-                              @Nullable SolaceSessionOAuth2TokenProvider solaceSessionOAuth2TokenProvider) {
+                              SolaceSessionOAuth2TokenProvider solaceSessionOAuth2TokenProvider) {
         this.jcsmpProperties = (JCSMPProperties) properties.clone();
         this.solaceSessionOAuth2TokenProvider = solaceSessionOAuth2TokenProvider;
     }
