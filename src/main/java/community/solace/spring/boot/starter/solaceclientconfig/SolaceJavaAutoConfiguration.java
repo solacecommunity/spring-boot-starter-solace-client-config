@@ -5,6 +5,7 @@ import com.solacesystems.jcsmp.JCSMPProperties;
 import com.solacesystems.jcsmp.SolaceSessionOAuth2TokenProvider;
 import com.solacesystems.jcsmp.SpringJCSMPFactory;
 import com.solacesystems.jcsmp.impl.JCSMPPropertiesExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -13,7 +14,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.lang.Nullable;
 import org.springframework.scheduling.TaskScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +48,8 @@ public class SolaceJavaAutoConfiguration {
      */
     @Bean
     public SpringJCSMPFactory getSpringJCSMPFactory(JCSMPProperties jcsmpProperties,
-                                                    @Nullable SolaceSessionOAuth2TokenProvider solaceSessionOAuth2TokenProvider) {
-        return new SpringJCSMPFactory(jcsmpProperties, solaceSessionOAuth2TokenProvider);
+                                                    ObjectProvider<SolaceSessionOAuth2TokenProvider> solaceSessionOAuth2TokenProvider) {
+        return new SpringJCSMPFactory(jcsmpProperties, solaceSessionOAuth2TokenProvider.getIfAvailable());
     }
 
     /**
