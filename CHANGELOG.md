@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.4 - 2026-11-05
+### Changed
+- Spring Boot 4.1.2
+- The optional `SolaceSessionOAuth2TokenProvider` is injected through an `ObjectProvider` instead of the deprecated `org.springframework.lang.Nullable`
+- Test and build dependencies: gson 2.15.0, okhttp 5.5.1, swagger-core, swagger-annotations and swagger-models 3.0.0, swagger-codegen-maven-plugin 3.0.83
+
 ## 3.1.3 - 2026-10-08
 ### Changed
 - Dependency update
