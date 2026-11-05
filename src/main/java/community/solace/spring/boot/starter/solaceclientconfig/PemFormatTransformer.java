@@ -7,12 +7,15 @@ import org.springframework.util.StringUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +27,7 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 final class PemFormatTransformer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PemFormatTransformer.class);
+    private static final List<String> SUPPORTED_KEY_ALGORITHMS = List.of("RSA", "EC");
     private static final Pattern PEM_FORMAT = Pattern.compile(
             "^\\s*-----BEGIN (RSA PRIVATE KEY|PRIVATE KEY)-----\\s*(" +
                     "([0-9a-zA-Z+/=]{64}\\s*)*" + "([0-9a-zA-Z+/=]{1,63}\\s*)?" +
@@ -80,11 +84,26 @@ final class PemFormatTransformer {
             if (encodedKey == null) {
                 return null;
             }
-            return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(encodedKey));
+            return generatePrivateKey(new PKCS8EncodedKeySpec(encodedKey));
         } catch (Exception e) {
             LOG.warn("Could not parse SSL_PRIVATE_KEY {} pem={}...", e.getMessage(), StringUtils.truncate(pem, 10), e);
             return null;
         }
+    }
+
+    /**
+     * A PKCS#8 key spec does not expose its algorithm, so each supported key factory is tried in turn.
+     */
+    private static PrivateKey generatePrivateKey(final PKCS8EncodedKeySpec keySpec) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        InvalidKeySpecException lastRejection = null;
+        for (String keyAlgorithm : SUPPORTED_KEY_ALGORITHMS) {
+            try {
+                return KeyFactory.getInstance(keyAlgorithm).generatePrivate(keySpec);
+            } catch (InvalidKeySpecException rejection) {
+                lastRejection = rejection;
+            }
+        }
+        throw new InvalidKeySpecException("Not a PKCS#8 private key of type " + SUPPORTED_KEY_ALGORITHMS, lastRejection);
     }
 
     private byte[] decodePemKey(final String pem) {

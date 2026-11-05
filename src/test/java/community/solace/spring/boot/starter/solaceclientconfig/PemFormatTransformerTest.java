@@ -7,13 +7,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.IOException;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -32,6 +35,24 @@ public class PemFormatTransformerTest {
     void getPrivateKeyGeneratesCorrectKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         final PrivateKey privateKey = uut.getPrivateKey(getPemFromProperties("SOLACE_PRIVATE_KEY"));
         assertThat(privateKey, notNullValue());
+    }
+
+    @Test
+    void getPrivateKeyGeneratesCorrectEcKey() throws NoSuchAlgorithmException {
+        final PrivateKey ecKey = KeyPairGenerator.getInstance("EC").generateKeyPair().getPrivate();
+
+        final PrivateKey privateKey = uut.getPrivateKey(toPkcs8Pem(ecKey));
+
+        assertThat(privateKey, notNullValue());
+        assertThat(privateKey.getAlgorithm(), equalTo("EC"));
+        assertThat(privateKey.getEncoded(), equalTo(ecKey.getEncoded()));
+    }
+
+    @Test
+    void getPrivateKey_returnsNull_ifKeyTypeIsNotSupported() throws NoSuchAlgorithmException {
+        final PrivateKey edwardsCurveKey = KeyPairGenerator.getInstance("Ed25519").generateKeyPair().getPrivate();
+
+        assertNull(uut.getPrivateKey(toPkcs8Pem(edwardsCurveKey)));
     }
 
     @Test
@@ -58,5 +79,11 @@ public class PemFormatTransformerTest {
         final Resource resource = new ClassPathResource("solace.properties");
         final Properties solaceProperties = PropertiesLoaderUtils.loadProperties(resource);
         return solaceProperties.getProperty(key);
+    }
+
+    private static String toPkcs8Pem(final PrivateKey privateKey) {
+        return "-----BEGIN PRIVATE KEY-----\n" +
+                Base64.getMimeEncoder(64, "\n".getBytes(US_ASCII)).encodeToString(privateKey.getEncoded()) +
+                "\n-----END PRIVATE KEY-----\n";
     }
 }

@@ -138,6 +138,7 @@ it can be easily passed to the application configuration directly from an enviro
 `.properties`. Loading certificates and private keys in the `.jks` format from the file system is no longer necessary.
 
 The PEM strings can be defined via environment variables, properties or directly in the `application.yml`.
+`SSL_PRIVATE_KEY` must be an unencrypted PKCS#8 key (`-----BEGIN PRIVATE KEY-----`) of type RSA or EC.
 ```yaml
 solace:
   java:
